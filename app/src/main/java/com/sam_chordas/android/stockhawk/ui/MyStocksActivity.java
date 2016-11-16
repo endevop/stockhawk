@@ -73,7 +73,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     mServiceIntent = new Intent(this, StockIntentService.class);
     if (savedInstanceState == null){
       // Run the initialize task service so that some stocks appear upon an empty database
-      mServiceIntent.putExtra("tag", "init");
+      mServiceIntent.putExtra(getString(R.string.intent_extra_tag),
+              getString(R.string.intent_extra_init));
       if (isConnected){
         startService(mServiceIntent);
       } else{
@@ -112,17 +113,20 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                       new String[] { input.toString() }, null);
                   if (c.getCount() != 0) {
                     Toast toast =
-                        Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                        Toast.makeText(MyStocksActivity.this, getString(R.string.symbol_exists),
                             Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                     toast.show();
+                    c.close();
                     return;
                   } else {
                     // Add the stock to DB
-                    mServiceIntent.putExtra("tag", "add");
-                    mServiceIntent.putExtra("symbol", input.toString());
+                    mServiceIntent.putExtra(getString(R.string.intent_extra_tag),
+                            getString(R.string.intent_extra_add));
+                    mServiceIntent.putExtra(getString(R.string.intent_extra_symbol), input.toString());
                     startService(mServiceIntent);
                   }
+                  c.close();
                 }
               })
               .show();
@@ -141,7 +145,6 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     if (isConnected){
       long period = 3600L;
       long flex = 10L;
-      String periodicTag = "periodic";
 
       // create a periodic task to pull stocks once every hour after the app has been opened. This
       // is so Widget data stays up to date.
@@ -149,7 +152,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
           .setService(StockTaskService.class)
           .setPeriod(period)
           .setFlex(flex)
-          .setTag(periodicTag)
+          .setTag(getString(R.string.intent_extra_periodic_tag))
           .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
           .setRequiresCharging(false)
           .build();

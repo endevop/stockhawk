@@ -3,12 +3,39 @@
 
   <string name="action_example">Example action</string>
 
+  <!-- Settings menu -->
   <string name="action_settings">Settings</string>
+
+  <!-- Menu button title for action that changes displayed units to dollar values -->
   <string name="action_change_units_dollar">Change units to dollar value</string>
+  <!-- Menu button title for action that changes displayed units to percentages -->
   <string name="action_change_units_percentages">Change units to percent value</string>
+
+  <!-- Floating button title for symbol search action -->
   <string name="symbol_search">Symbol Search</string>
+
+  <!-- Symbol search dialog title -->
   <string name="content_test">Search for a Stock Symbol</string>
-  <string name="input_hint">FB</string>
+
+  <!-- stock symbol is not translatable -->
+  <string name="input_hint" translatable="false">FB</string>
+
   <string name="input_prefill"></string>
+
+  <!-- service related -->
+  <string name="intent_extra_tag" translatable="false">tag</string>
+  <string name="intent_extra_periodic_tag" translatable="false">periodic</string>
+  <string name="intent_extra_symbol" translatable="false">symbol</string>
+  <string name="intent_extra_init" translatable="false">init</string>
+  <string name="intent_extra_add" translatable="false">add</string>
+
+  <!-- Error messages displpayed to the user -->
+  <!-- Message displayed when there is no internet connection -->
   <string name="network_toast">Uh-oh! This app requires an internet connection</string>
+  <!-- Message displayed when attempting to search for stock symbol that is already present in the DB -->
+  <string name="symbol_exists">This stock is already saved!</string>
+
+  <!-- Log messages -->
+  <!-- When inserting of multiple items into the DB fails -->
+  <string name="batch_insert_error">Error applying batch insert</string>
 </resources>

@@ -10,6 +10,7 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.Utils;
@@ -62,7 +63,8 @@ public class StockTaskService extends GcmTaskService{
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
-    if (params.getTag().equals("init") || params.getTag().equals("periodic")){
+    if (params.getTag().equals(mContext.getString(R.string.intent_extra_init))
+            || params.getTag().equals(mContext.getString(R.string.intent_extra_periodic_tag))){
       isUpdate = true;
       initQueryCursor = mContext.getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
           new String[] { "Distinct " + QuoteColumns.SYMBOL }, null,
@@ -80,7 +82,8 @@ public class StockTaskService extends GcmTaskService{
         initQueryCursor.moveToFirst();
         for (int i = 0; i < initQueryCursor.getCount(); i++){
           mStoredSymbols.append("\""+
-              initQueryCursor.getString(initQueryCursor.getColumnIndex("symbol"))+"\",");
+              initQueryCursor.getString(initQueryCursor
+                      .getColumnIndex(QuoteColumns.SYMBOL))+"\",");
           initQueryCursor.moveToNext();
         }
         mStoredSymbols.replace(mStoredSymbols.length() - 1, mStoredSymbols.length(), ")");
@@ -90,10 +93,10 @@ public class StockTaskService extends GcmTaskService{
           e.printStackTrace();
         }
       }
-    } else if (params.getTag().equals("add")){
+    } else if (params.getTag().equals(getString(R.string.intent_extra_add))){
       isUpdate = false;
       // get symbol from params.getExtra and build query
-      String stockInput = params.getExtras().getString("symbol");
+      String stockInput = params.getExtras().getString(getString(R.string.intent_extra_symbol));
       try {
         urlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
       } catch (UnsupportedEncodingException e){
@@ -125,7 +128,7 @@ public class StockTaskService extends GcmTaskService{
           mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
               Utils.quoteJsonToContentVals(getResponse));
         }catch (RemoteException | OperationApplicationException e){
-          Log.e(LOG_TAG, "Error applying batch insert", e);
+          Log.e(LOG_TAG, getString(R.string.batch_insert_error), e);
         }
       } catch (IOException e){
         e.printStackTrace();
