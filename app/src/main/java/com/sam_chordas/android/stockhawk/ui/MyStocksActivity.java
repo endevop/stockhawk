@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -56,6 +57,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   private Cursor mCursor;
   private MenuItem mUnitsButton;
   boolean isConnected;
+  private RecyclerView mRecyclerView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -81,23 +83,23 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
         networkToast();
       }
     }
-    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-    recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+    mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
     mCursorAdapter = new QuoteCursorAdapter(this, null);
-    recyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
+    mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
             new RecyclerViewItemClickListener.OnItemClickListener() {
-              @Override public void onItemClick(View v, int position) {
-                //TODO:
-                // do something on item click
-              }
+              @Override
+              public void onItemClick(View v, int position) {
+                  startLineGraphActivity(v);
+                }
             }));
-    recyclerView.setAdapter(mCursorAdapter);
 
+    mRecyclerView.setAdapter(mCursorAdapter);
 
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-    fab.attachToRecyclerView(recyclerView);
+    fab.attachToRecyclerView(mRecyclerView);
     fab.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         if (isConnected){
@@ -139,7 +141,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
 
     ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mCursorAdapter);
     mItemTouchHelper = new ItemTouchHelper(callback);
-    mItemTouchHelper.attachToRecyclerView(recyclerView);
+    mItemTouchHelper.attachToRecyclerView(mRecyclerView);
 
     mTitle = getTitle();
     if (isConnected){
@@ -167,6 +169,19 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   public void onResume() {
     super.onResume();
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    mRecyclerView.removeOnItemTouchListener(null);
+  }
+
+  private void startLineGraphActivity(View v) {
+      TextView tv = (TextView) v.findViewById(R.id.stock_symbol);
+      Intent lineGraphIntent = new Intent(mContext, LineGraphActivity.class);
+      lineGraphIntent.putExtra(getString(R.string.intent_extra_symbol), tv.getText());
+      startActivity(lineGraphIntent);
   }
 
   public void networkToast(){

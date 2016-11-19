@@ -1,12 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+        <Button
+            android:id="@+id/day_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="updateChart"
+            android:text="@string/day_button_label"
+            android:contentDescription="@string/day_button_description"
+            android:background="@drawable/md_btn_selector" />
+        <Button
+            android:id="@+id/week_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="updateChart"
+            android:text="@string/week_button_label"
+            android:contentDescription="@string/week_button_description"
+            android:background="@drawable/md_btn_selector" />
+        <Button
+            android:id="@+id/year_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="updateChart"
+            android:text="@string/year_button_label"
+            android:contentDescription="@string/year_button_description"
+            android:background="@drawable/md_btn_selector" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/chart_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/StockSymbolTextStyle"
+        android:layout_gravity="center_horizontal"
+        />
     <com.db.chart.view.LineChartView
         xmlns:chart="http://schemas.android.com/apk/res-auto"
         android:id="@+id/linechart"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-</FrameLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+</LinearLayout>

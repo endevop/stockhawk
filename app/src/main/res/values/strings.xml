@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="app_name">Stock Hawk</string>
 
   <string name="action_example">Example action</string>
@@ -10,7 +10,19 @@
   <string name="action_change_units_dollar">Change units to dollar value</string>
   <!-- Menu button title for action that changes displayed units to percentages -->
   <string name="action_change_units_percentages">Change units to percent value</string>
-
+  <!-- line chart buttons -->
+  <string name="day_button_description">Show hourly bid price changes</string>
+  <string name="week_button_description">Show daily bid price changes</string>
+  <string name="year_button_description">Show monthly bid price changes</string>
+  <string name="day_button_label">Hours</string>
+  <string name="week_button_label">Days</string>
+  <string name="year_button_label">Months</string>
+  <!-- line chart label when hours button is pressed -->
+  <string name="hourly_changes">Bid price per hour (<xliff:g id="symbol">%1$s</xliff:g>)</string>
+  <!-- line chart label when days button is pressed -->
+  <string name="daily_changes">Bid price per day (<xliff:g id="symbol">%1$s</xliff:g>)</string>
+  <!-- line chart label when months button is pressed -->
+  <string name="monthly_changes">Bid price per month (<xliff:g id="symbol">%1$s</xliff:g>)</string>
   <!-- Floating button title for symbol search action -->
   <string name="symbol_search">Symbol Search</string>
 
@@ -19,6 +31,9 @@
 
   <!-- stock symbol is not translatable -->
   <string name="input_hint" translatable="false">FB</string>
+
+  <!-- chart description -->
+  <string name="chart_bidprice_over_time">Line chart displaying bid price over time</string>
 
   <string name="input_prefill"></string>
 
