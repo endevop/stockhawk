@@ -23,13 +23,34 @@
   <string name="daily_changes">Bid price per day (<xliff:g id="symbol">%1$s</xliff:g>)</string>
   <!-- line chart label when months button is pressed -->
   <string name="monthly_changes">Bid price per month (<xliff:g id="symbol">%1$s</xliff:g>)</string>
+  <!-- Months for chart labels -->
+  <string name="january">Jan</string>
+  <string name="february">Feb</string>
+  <string name="march">Mar</string>
+  <string name="april">Apr</string>
+  <string name="may">May</string>
+  <string name="june">Jun</string>
+  <string name="july">Jul</string>
+  <string name="august">Aug</string>
+  <string name="september">Sep</string>
+  <string name="october">Oct</string>
+  <string name="november">Nov</string>
+  <string name="december">Dec</string>
+
+  <!-- line chart message when there are not enough data points to graph hours -->
+  <string name="no_data_points_hour">Unfortunately there are not enough data points. Please try again in an hour.</string>
+  <!-- line chart message when there are not enough data points to graph days -->
+  <string name="no_data_points_day">Unfortunately there are not enough data points. Please try again tomorrow.</string>
+  <!-- line chart message when there are not enough data points to graph months -->
+  <string name="no_data_points_month">Unfortunately there are not enough data points. Please try again next month.</string>
+
   <!-- Floating button title for symbol search action -->
   <string name="symbol_search">Symbol Search</string>
 
   <!-- Symbol search dialog title -->
   <string name="content_test">Search for a Stock Symbol</string>
 
-  <!-- stock symbol is not translatable -->
+  <!-- stock symbol to search for -->
   <string name="input_hint" translatable="false">FB</string>
 
   <!-- chart description -->
@@ -53,4 +74,6 @@
   <!-- Log messages -->
   <!-- When inserting of multiple items into the DB fails -->
   <string name="batch_insert_error">Error applying batch insert</string>
+
+
 </resources>

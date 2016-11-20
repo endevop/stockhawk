@@ -1,9 +1,11 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
+import android.content.Context;
 import android.util.Log;
 
 import com.db.chart.model.LineSet;
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 
@@ -111,7 +113,7 @@ public class Utils {
         int max;
         int i;
 
-        max = (int) values[0];
+        max = (int) values[0] + 1; // round up
         for(i=1; i<values.length; i++)
             if(max < values[i])
                 max = (int) values[i] + 1; // round up
@@ -123,10 +125,13 @@ public class Utils {
         int min;
         int i;
 
-        min = (int) values[0];
+        min = (int) values[0] - 1;
         for(i=1; i<values.length; i++)
             if(min > values[i])
-                min = (int) values[i];
+                min = (int) values[i] - 1;
+
+        if(min < 10)
+            min = 0;
 
         return min;
     }
@@ -195,7 +200,7 @@ public class Utils {
     }
 
     /* returns data set for the last 7 days stored in the DB in one day steps */
-    public static LineSet getWeekLineSet(String[] dates, float[] values) {
+    public static LineSet getWeekLineSet(String[] dates, float[] values, Context context) {
         LineSet lineSet;
 
         List<String> labels = new ArrayList<>();
@@ -206,7 +211,7 @@ public class Utils {
         // dates are in format YYYY-MM-DDTHH:MM:00Z
         String lastKnownDate = dates[numValues - 1].substring(0, 10);
 
-        labels.add(lastKnownDate);
+        labels.add(formatDayAndMonthName(lastKnownDate, context));
         dayValues.add(values[numValues - 1]);
         // find more data points for different days
         for(i=numValues - 1; i>=0; i--) {
@@ -216,7 +221,7 @@ public class Utils {
             if(!date.substring(0,10).equals(lastKnownDate)) {
                 lastKnownDate = date.substring(0,10);
 
-                labels.add(0, lastKnownDate);
+                labels.add(0, formatDayAndMonthName(lastKnownDate, context));
                 dayValues.add(0, values[i]);
             }
 
@@ -237,8 +242,8 @@ public class Utils {
         return lineSet;
     }
 
-    /* returns data set for the last 12 months stored in the DB in one month steps */
-    public static LineSet getYearLineSet(String[] dates, float[] values) {
+    /* returns data set for the last 6 months stored in the DB in one month steps */
+    public static LineSet getYearLineSet(String[] dates, float[] values, Context context) {
         LineSet lineSet;
 
         List<String> labels = new ArrayList<>();
@@ -247,24 +252,23 @@ public class Utils {
         int i;
 
         // dates are in format YYYY-MM-DDTHH:MM:00Z
-        String lastKnownMonth = dates[numValues - 1].substring(0, 7);
-
-        labels.add(lastKnownMonth);
+        String lastKnownMonth = dates[numValues - 1].substring(5, 7);
+        labels.add(getMonthName(lastKnownMonth, context));
         monthValues.add(values[numValues - 1]);
         // find more data points for different months up to 12 months
         for(i=numValues - 1; i>=0; i--) {
             String date = dates[i];
 
             // use this data if it's older than last known month
-            if(!date.substring(0, 7).equals(lastKnownMonth)) {
-                lastKnownMonth = date.substring(0, 7);
+            if(!date.substring(5, 7).equals(lastKnownMonth)) {
+                lastKnownMonth = date.substring(5, 7);
 
-                labels.add(0, lastKnownMonth);
+                labels.add(0, getMonthName(lastKnownMonth, context));
                 monthValues.add(0, values[i]);
             }
 
-            // up to 12 data points
-            if(labels.size() == 12)
+            // up to 6 data points
+            if(labels.size() == 6)
                 break;
         }
         // convert lists to arrays
@@ -285,5 +289,41 @@ public class Utils {
         TimeZone tz = c.getTimeZone();
         int hourTZ = Integer.parseInt(hour) + tz.getRawOffset()/3600000;
         return Integer.toString(hourTZ);
+    }
+
+    public static String getMonthName(String monthNumber, Context context) {
+        if(monthNumber.equals("01"))
+            return context.getString(R.string.january);
+        else if(monthNumber.equals("02"))
+            return context.getString(R.string.february);
+        else if(monthNumber.equals("03"))
+            return context.getString(R.string.march);
+        else if(monthNumber.equals("04"))
+            return context.getString(R.string.april);
+        else if(monthNumber.equals("05"))
+            return context.getString(R.string.may);
+        else if(monthNumber.equals("06"))
+            return context.getString(R.string.june);
+        else if(monthNumber.equals("07"))
+            return context.getString(R.string.july);
+        else if(monthNumber.equals("08"))
+            return context.getString(R.string.august);
+        else if(monthNumber.equals("09"))
+            return context.getString(R.string.september);
+        else if(monthNumber.equals("10"))
+            return context.getString(R.string.october);
+        else if(monthNumber.equals("11"))
+            return context.getString(R.string.november);
+        else if(monthNumber.equals("12"))
+            return context.getString(R.string.december);
+        return null;
+    }
+
+    // converts YYYY-MM-DD to DD Month
+    public static String formatDayAndMonthName(String date, Context context) {
+        String day = date.substring(8);
+        String monthName = getMonthName(date.substring(5, 7), context);
+
+        return day + " " + monthName;
     }
 }

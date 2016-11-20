@@ -93,10 +93,10 @@ public class StockTaskService extends GcmTaskService{
           e.printStackTrace();
         }
       }
-    } else if (params.getTag().equals(getString(R.string.intent_extra_add))){
+    } else if (params.getTag().equals(mContext.getString(R.string.intent_extra_add))){
       isUpdate = false;
       // get symbol from params.getExtra and build query
-      String stockInput = params.getExtras().getString(getString(R.string.intent_extra_symbol));
+      String stockInput = params.getExtras().getString(mContext.getString(R.string.intent_extra_symbol));
       try {
         urlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
       } catch (UnsupportedEncodingException e){
@@ -113,7 +113,6 @@ public class StockTaskService extends GcmTaskService{
 
     if (urlStringBuilder != null){
       urlString = urlStringBuilder.toString();
-      Log.d("url", urlString);
       try{
         getResponse = fetchData(urlString);
         result = GcmNetworkManager.RESULT_SUCCESS;
