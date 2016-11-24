@@ -64,11 +64,17 @@ public class Utils {
   }
 
   public static String truncateBidPrice(String bidPrice){
-    bidPrice = String.format("%.2f", Float.parseFloat(bidPrice));
+     // observed strange JSON response, check for 'null'
+    if(!bidPrice.equals("null"))
+        bidPrice = String.format("%.2f", Float.parseFloat(bidPrice));
     return bidPrice;
   }
 
   public static String truncateChange(String change, boolean isPercentChange){
+    // observed strange JSON response, check for 'null'
+    if(change.equals("null"))
+        return change;
+
     String weight = change.substring(0,1);
     String ampersand = "";
     if (isPercentChange){
@@ -140,9 +146,17 @@ public class Utils {
         int step;
         int max = getChartMax(values);
         int min = getChartMin(values);
+        int distance = max - min;
 
-        step = (max - min) / 10;
+        // find axis step value
+        step = distance / 10;
+        while(step > 1) {
+            if(distance % step == 0)
+                break;
+            step--;
+        }
 
+        // make sure it is > 0
         if(step == 0)
             step = 1;
 

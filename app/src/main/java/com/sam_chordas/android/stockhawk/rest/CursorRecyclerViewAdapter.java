@@ -1,9 +1,12 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
+
+import static com.sam_chordas.android.stockhawk.widget.StockHawkWidgetProvider.ACTION_DATA_UPDATED;
 
 /**
  * Created by sam_chordas on 10/6/15.
@@ -17,7 +20,9 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
   private boolean dataIsValid;
   private int rowIdColumn;
   private DataSetObserver mDataSetObserver;
+  private Context mContext;
   public CursorRecyclerViewAdapter(Context context, Cursor cursor){
+    mContext = context;
     mCursor = cursor;
     dataIsValid = cursor != null;
     rowIdColumn = dataIsValid ? mCursor.getColumnIndex("_id") : -1;
@@ -80,10 +85,12 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
       rowIdColumn = newCursor.getColumnIndexOrThrow("_id");
       dataIsValid = true;
       notifyDataSetChanged();
+      updateWidgets();
     }else{
       rowIdColumn = -1;
       dataIsValid = false;
       notifyDataSetChanged();
+      updateWidgets();
     }
     return oldCursor;
   }
@@ -93,12 +100,19 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
       super.onChanged();
       dataIsValid = true;
       notifyDataSetChanged();
+      updateWidgets();
     }
 
     @Override public void onInvalidated() {
       super.onInvalidated();
       dataIsValid = false;
       notifyDataSetChanged();
+      updateWidgets();
     }
+  }
+
+  private void updateWidgets() {
+      Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED).setPackage(mContext.getPackageName());
+      mContext.sendBroadcast(dataUpdatedIntent);
   }
 }

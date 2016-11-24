@@ -180,7 +180,9 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   private void startLineGraphActivity(View v) {
       TextView tv = (TextView) v.findViewById(R.id.stock_symbol);
       Intent lineGraphIntent = new Intent(mContext, LineGraphActivity.class);
-      lineGraphIntent.putExtra(getString(R.string.intent_extra_symbol), tv.getText());
+      lineGraphIntent.setDataAndType(QuoteProvider.Quotes.withSymbol(tv.getText().toString()),
+              tv.getText().toString());
+      //lineGraphIntent.putExtra(getString(R.string.intent_extra_symbol), tv.getText());
       startActivity(lineGraphIntent);
   }
 
