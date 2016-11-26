@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -39,7 +41,9 @@ import com.sam_chordas.android.stockhawk.touch_helper.SimpleItemTouchHelperCallb
 
 import static com.sam_chordas.android.stockhawk.R.id.action_change_units;
 
-public class MyStocksActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MyStocksActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
   /**
    * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -63,6 +67,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = this;
+    // reset errors
+    Utils.resetQuotesStatus(mContext);
     ConnectivityManager cm =
         (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -110,6 +116,15 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                 @Override public void onInput(MaterialDialog dialog, CharSequence input) {
                   // On FAB click, receive user input. Make sure the stock doesn't already exist
                   // in the DB and proceed accordingly
+                  if(input.length() == 0) {
+                    // no input, nothing to do
+                    Toast toast =
+                            Toast.makeText(MyStocksActivity.this, getString(R.string.empty_input),
+                                    Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+                    toast.show();
+                    return;
+                  }
                   Cursor c = getContentResolver().query(QuoteProvider.Quotes.CONTENT_URI,
                       new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
                       new String[] { input.toString() }, null);
@@ -168,13 +183,20 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   @Override
   public void onResume() {
     super.onResume();
+    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    sp.registerOnSharedPreferenceChangeListener(this);
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
+    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    sp.unregisterOnSharedPreferenceChangeListener(this);
     mRecyclerView.removeOnItemTouchListener(null);
+
+    //reset errors
+    Utils.resetQuotesStatus(mContext);
   }
 
   private void startLineGraphActivity(View v) {
@@ -187,7 +209,10 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   }
 
   public void networkToast(){
-    Toast.makeText(mContext, getString(R.string.network_toast), Toast.LENGTH_SHORT).show();
+    Toast toast = Toast.makeText(mContext, getString(R.string.network_toast),
+            Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+    toast.show();
   }
 
   public void restoreActionBar() {
@@ -255,4 +280,54 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     mCursorAdapter.swapCursor(null);
   }
 
+  // Show error messages
+  private void checkErrors() {
+    int messageId = -1;
+    switch (Utils.getQuoteStatus(getApplicationContext())) {
+      case Utils.QUOTES_STATUS_SERVER_INVALID:
+        messageId = R.string.quotes_status_server_invalid;
+        break;
+
+      case Utils.QUOTES_STATUS_BAD_QUOTES_URL:
+        messageId = R.string.quotes_status_bad_quotes_url;
+        break;
+
+      case Utils.QUOTES_STATUS_DB_ERROR:
+        messageId = R.string.quotes_status_db_error;
+        break;
+
+      case Utils.QUOTES_STATUS_NO_DATA:
+        messageId = R.string.quotes_status_no_data;
+        break;
+
+      case Utils.QUOTES_STATUS_SERVER_DOWN:
+        messageId = R.string.quotes_status_server_down;
+        break;
+
+      case Utils.QUOTES_STATUS_UNKNOWN:
+        messageId = R.string.quotes_status_unknown;
+        break;
+
+      default:
+        //status is OK or UNKNOWN
+    }
+
+    if(messageId == -1) {
+      return;
+    }
+
+    // show message
+    Toast toast =
+            Toast.makeText(MyStocksActivity.this, getString(messageId),
+                    Toast.LENGTH_LONG);
+    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+    toast.show();
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if (key.equals(getString(R.string.pref_quotes_status_key))) {
+      checkErrors();
+    }
+  }
 }

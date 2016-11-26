@@ -61,6 +61,7 @@ public class StockTaskService extends GcmTaskService{
       urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
         + "in (", "UTF-8"));
     } catch (UnsupportedEncodingException e) {
+      Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_BAD_QUOTES_URL);
       e.printStackTrace();
     }
     if (params.getTag().equals(mContext.getString(R.string.intent_extra_init))
@@ -75,6 +76,7 @@ public class StockTaskService extends GcmTaskService{
           urlStringBuilder.append(
               URLEncoder.encode("\"YHOO\",\"AAPL\",\"GOOG\",\"MSFT\")", "UTF-8"));
         } catch (UnsupportedEncodingException e) {
+          Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_BAD_QUOTES_URL);
           e.printStackTrace();
         }
       } else if (initQueryCursor != null){
@@ -90,6 +92,7 @@ public class StockTaskService extends GcmTaskService{
         try {
           urlStringBuilder.append(URLEncoder.encode(mStoredSymbols.toString(), "UTF-8"));
         } catch (UnsupportedEncodingException e) {
+          Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_BAD_QUOTES_URL);
           e.printStackTrace();
         }
       }
@@ -100,6 +103,7 @@ public class StockTaskService extends GcmTaskService{
       try {
         urlStringBuilder.append(URLEncoder.encode("\""+stockInput+"\")", "UTF-8"));
       } catch (UnsupportedEncodingException e){
+        Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_BAD_QUOTES_URL);
         e.printStackTrace();
       }
     }
@@ -113,7 +117,7 @@ public class StockTaskService extends GcmTaskService{
 
     if (urlStringBuilder != null){
       urlString = urlStringBuilder.toString();
-      Log.d("URL: ", urlString);
+
       try{
         getResponse = fetchData(urlString);
         result = GcmNetworkManager.RESULT_SUCCESS;
@@ -126,16 +130,22 @@ public class StockTaskService extends GcmTaskService{
                 null, null);
           }
           mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
-              Utils.quoteJsonToContentVals(getResponse));
+              Utils.quoteJsonToContentVals(mContext, getResponse));
         }catch (RemoteException | OperationApplicationException e){
+          Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_DB_ERROR);
           Log.e(LOG_TAG, getString(R.string.batch_insert_error), e);
         }
       } catch (IOException e){
+        Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_SERVER_DOWN);
         e.printStackTrace();
       }
     }
 
+    // set quotes status to OK
+    @Utils.QuotesStatus int status = Utils.getQuoteStatus(mContext);
+    if(status == Utils.QUOTES_STATUS_UNKNOWN)
+      Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_OK);
+
     return result;
   }
-
 }

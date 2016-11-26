@@ -65,15 +65,34 @@
   <string name="intent_extra_init" translatable="false">init</string>
   <string name="intent_extra_add" translatable="false">add</string>
 
-  <!-- Error messages displpayed to the user -->
+  <!-- Error messages displayed to the user -->
   <!-- Message displayed when there is no internet connection -->
   <string name="network_toast">Uh-oh! This app requires an internet connection</string>
   <!-- Message displayed when attempting to search for stock symbol that is already present in the DB -->
   <string name="symbol_exists">This stock is already saved!</string>
+  <!-- Message displayed when symbol search returns no data -->
+  <string name="invalid_symbol">Query for symbol <xliff:g id="symbol">%1$s</xliff:g> returned no data</string>
+  <!-- Message displayed when user performed symbol search without entering any characters -->
+  <string name="empty_input">No changes. Search input was empty.</string>
+  <!-- Message displayed when the server returns invalid data -->
+  <string name="quotes_status_server_invalid">The server returned invalid data. Please check for software updates.</string>
+  <!-- Message displayed when the server is down -->
+  <string name="quotes_status_server_down">The server is not responding</string>
+  <!-- Message displayed when the server returns no usable data -->
+  <string name="quotes_status_no_data">The symbol is not valid or the server does not have any data for this symbol</string>
+  <!-- Message displayed when the server URL cannot be created -->
+  <string name="quotes_status_bad_quotes_url">There was a problem with the server URL</string>
+  <!-- Message displayed when the data cannot be saved locally -->
+  <string name="quotes_status_db_error">Unable to save data. Please check for software updates.</string>
+  <!-- Message displayed when the status is not known - this should never be the case, but is used for debugging and testing -->
+  <string name="quotes_status_unknown">Unknown status</string>
 
   <!-- Log messages -->
   <!-- When inserting of multiple items into the DB fails -->
   <string name="batch_insert_error">Error applying batch insert</string>
+
+  <!-- key in shared preferences for storing error codes -->
+  <string name="pref_quotes_status_key" translatable="false">pref_quotes_status_key</string>
 
 
 </resources>
