@@ -8,12 +8,9 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.db.chart.model.LineSet;
 import com.db.chart.renderer.AxisRenderer;
@@ -121,19 +118,22 @@ public class LineGraphActivity extends AppCompatActivity {
                 return;
         }
 
+        // check the data size and draw graph only if there are 2 or more points
         int dataSize = lineSet.size();
         if(dataSize < 2) {
-            Toast toast = Toast.makeText(mContext, getString(error_string), Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-            toast.show();
+            //Toast toast = Toast.makeText(mContext, getString(error_string), Toast.LENGTH_LONG);
+            //toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+            //toast.show();
+            mChart.reset();
+            mChartLabel.setText(getString(error_string));
             return;
         }
         lineSet.setColor(getResources().getColor(R.color.material_blue_500));
-        lineSet.setSmooth(true);
+        //lineSet.setSmooth(true);
 
         mChart.addData(lineSet);
         mChart.setGrid(ChartView.GridType.FULL, dataSize - 1, dataSize - 1, new Paint());
-        Log.d("border values", "min: " + Utils.getChartMin(mValues) + " max: " + Utils.getChartMax(mValues) + " step: " + Utils.getChartStep(mValues));
+        //Log.d("border values", "min: " + Utils.getChartMin(mValues) + " max: " + Utils.getChartMax(mValues) + " step: " + Utils.getChartStep(mValues));
         mChart.setAxisBorderValues(Utils.getChartMin(mValues), Utils.getChartMax(mValues),
                 Utils.getChartStep(mValues));
 

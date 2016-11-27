@@ -38,11 +38,11 @@
   <string name="december">Dec</string>
 
   <!-- line chart message when there are not enough data points to graph hours -->
-  <string name="no_data_points_hour">Unfortunately there are not enough data points. Please try again in an hour.</string>
+  <string name="no_data_points_hour">There are not enough data points to graph hours. Please try again in an hour.</string>
   <!-- line chart message when there are not enough data points to graph days -->
-  <string name="no_data_points_day">Unfortunately there are not enough data points. Please try again tomorrow.</string>
+  <string name="no_data_points_day">There are not enough data points to graph days. Please try again tomorrow.</string>
   <!-- line chart message when there are not enough data points to graph months -->
-  <string name="no_data_points_month">Unfortunately there are not enough data points. Please try again next month.</string>
+  <string name="no_data_points_month">There are not enough data points to graph months. Please try again next month.</string>
 
   <!-- Floating button title for symbol search action -->
   <string name="symbol_search">Symbol Search</string>
@@ -67,25 +67,27 @@
 
   <!-- Error messages displayed to the user -->
   <!-- Message displayed when there is no internet connection -->
-  <string name="network_toast">Uh-oh! This app requires an internet connection</string>
+  <string name="quotes_status_no_internet">Uh-oh! This app requires an internet connection</string>
   <!-- Message displayed when attempting to search for stock symbol that is already present in the DB -->
   <string name="symbol_exists">This stock is already saved!</string>
   <!-- Message displayed when symbol search returns no data -->
   <string name="invalid_symbol">Query for symbol <xliff:g id="symbol">%1$s</xliff:g> returned no data</string>
   <!-- Message displayed when user performed symbol search without entering any characters -->
-  <string name="empty_input">No changes. Search input was empty.</string>
+  <string name="empty_input">Your search input was empty</string>
   <!-- Message displayed when the server returns invalid data -->
   <string name="quotes_status_server_invalid">The server returned invalid data. Please check for software updates.</string>
   <!-- Message displayed when the server is down -->
-  <string name="quotes_status_server_down">The server is not responding</string>
+  <string name="quotes_status_server_down">The server is not responding. Please check your internet connection.</string>
   <!-- Message displayed when the server returns no usable data -->
   <string name="quotes_status_no_data">The symbol is not valid or the server does not have any data for this symbol</string>
   <!-- Message displayed when the server URL cannot be created -->
   <string name="quotes_status_bad_quotes_url">There was a problem with the server URL</string>
   <!-- Message displayed when the data cannot be saved locally -->
   <string name="quotes_status_db_error">Unable to save data. Please check for software updates.</string>
-  <!-- Message displayed when the status is not known - this should never be the case, but is used for debugging and testing -->
-  <string name="quotes_status_unknown">Unknown status</string>
+  <!-- Message displayed when the view is empty but the status is ok  -->
+  <string name="quotes_status_ok">Press the \'+\' button to search for symbols</string>
+  <!-- Standard error message when quotes cannot be displayed and the exact error is unknown -->
+  <string name="empty_view">Quotes information is not available</string>
 
   <!-- Log messages -->
   <!-- When inserting of multiple items into the DB fails -->

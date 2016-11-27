@@ -39,7 +39,7 @@ public class Utils {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({QUOTES_STATUS_OK, QUOTES_STATUS_NO_DATA, QUOTES_STATUS_SERVER_INVALID,
           QUOTES_STATUS_UNKNOWN, QUOTES_STATUS_BAD_QUOTES_URL, QUOTES_STATUS_SERVER_DOWN,
-          QUOTES_STATUS_DB_ERROR})
+          QUOTES_STATUS_DB_ERROR, QUOTES_STATUS_NO_INTERNET})
   public @interface QuotesStatus {}
 
   public static final int QUOTES_STATUS_OK              = 0;
@@ -49,6 +49,7 @@ public class Utils {
   public static final int QUOTES_STATUS_BAD_QUOTES_URL  = 4;
   public static final int QUOTES_STATUS_SERVER_DOWN     = 5;
   public static final int QUOTES_STATUS_DB_ERROR        = 6;
+  public static final int QUOTES_STATUS_NO_INTERNET     = 7;
 
   public static ArrayList quoteJsonToContentVals(Context c, String JSON){
     ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
@@ -377,7 +378,6 @@ public class Utils {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
         SharedPreferences.Editor spe = sp.edit();
         spe.putInt(c.getString(R.string.pref_quotes_status_key), quotesStatus);
-        Log.d("set status", "status: " + quotesStatus);
         spe.commit();
     }
 

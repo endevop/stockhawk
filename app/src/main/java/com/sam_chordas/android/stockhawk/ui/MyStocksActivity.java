@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,19 +63,14 @@ public class MyStocksActivity extends AppCompatActivity
   private MenuItem mUnitsButton;
   boolean isConnected;
   private RecyclerView mRecyclerView;
+  private TextView mEmptyView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mContext = this;
-    // reset errors
-    Utils.resetQuotesStatus(mContext);
-    ConnectivityManager cm =
-        (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-    isConnected = activeNetwork != null &&
-        activeNetwork.isConnectedOrConnecting();
+    // check network connection
+    checkNetwork();
     setContentView(R.layout.activity_my_stocks);
     // The intent service is for executing immediate pulls from the Yahoo API
     // GCMTaskService can only schedule tasks, they cannot execute immediately
@@ -86,14 +82,16 @@ public class MyStocksActivity extends AppCompatActivity
       if (isConnected){
         startService(mServiceIntent);
       } else{
-        networkToast();
+        Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_NO_INTERNET);
       }
     }
     mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     getLoaderManager().initLoader(CURSOR_LOADER_ID, null, this);
 
-    mCursorAdapter = new QuoteCursorAdapter(this, null);
+    mEmptyView = (TextView) findViewById(R.id.recycler_view_empty);
+
+    mCursorAdapter = new QuoteCursorAdapter(this, null, mEmptyView);
     mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(this,
             new RecyclerViewItemClickListener.OnItemClickListener() {
               @Override
@@ -108,6 +106,8 @@ public class MyStocksActivity extends AppCompatActivity
     fab.attachToRecyclerView(mRecyclerView);
     fab.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
+        // check network connection
+        checkNetwork();
         if (isConnected){
           new MaterialDialog.Builder(mContext).title(R.string.symbol_search)
               .content(R.string.content_test)
@@ -148,7 +148,12 @@ public class MyStocksActivity extends AppCompatActivity
               })
               .show();
         } else {
-          networkToast();
+          Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_NO_INTERNET);
+          Toast toast =
+                  Toast.makeText(MyStocksActivity.this, getString(R.string.quotes_status_no_internet),
+                          Toast.LENGTH_LONG);
+          toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+          toast.show();
         }
 
       }
@@ -183,6 +188,8 @@ public class MyStocksActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
+    Log.d("onResume", "== resumed");
+    checkNetwork();
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
     sp.registerOnSharedPreferenceChangeListener(this);
     getLoaderManager().restartLoader(CURSOR_LOADER_ID, null, this);
@@ -194,9 +201,6 @@ public class MyStocksActivity extends AppCompatActivity
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
     sp.unregisterOnSharedPreferenceChangeListener(this);
     mRecyclerView.removeOnItemTouchListener(null);
-
-    //reset errors
-    Utils.resetQuotesStatus(mContext);
   }
 
   private void startLineGraphActivity(View v) {
@@ -206,13 +210,6 @@ public class MyStocksActivity extends AppCompatActivity
               tv.getText().toString());
       //lineGraphIntent.putExtra(getString(R.string.intent_extra_symbol), tv.getText());
       startActivity(lineGraphIntent);
-  }
-
-  public void networkToast(){
-    Toast toast = Toast.makeText(mContext, getString(R.string.network_toast),
-            Toast.LENGTH_LONG);
-    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-    toast.show();
   }
 
   public void restoreActionBar() {
@@ -273,6 +270,7 @@ public class MyStocksActivity extends AppCompatActivity
   public void onLoadFinished(Loader<Cursor> loader, Cursor data){
     mCursorAdapter.swapCursor(data);
     mCursor = data;
+    checkErrors();
   }
 
   @Override
@@ -283,7 +281,9 @@ public class MyStocksActivity extends AppCompatActivity
   // Show error messages
   private void checkErrors() {
     int messageId = -1;
-    switch (Utils.getQuoteStatus(getApplicationContext())) {
+    int status = Utils.getQuoteStatus(getApplicationContext());
+
+    switch (status) {
       case Utils.QUOTES_STATUS_SERVER_INVALID:
         messageId = R.string.quotes_status_server_invalid;
         break;
@@ -304,24 +304,28 @@ public class MyStocksActivity extends AppCompatActivity
         messageId = R.string.quotes_status_server_down;
         break;
 
-      case Utils.QUOTES_STATUS_UNKNOWN:
-        messageId = R.string.quotes_status_unknown;
+      case Utils.QUOTES_STATUS_NO_INTERNET:
+        messageId = R.string.quotes_status_no_internet;
         break;
 
       default:
         //status is OK or UNKNOWN
+        messageId = R.string.quotes_status_ok;
     }
 
-    if(messageId == -1) {
-      return;
+    if(messageId >= 0) {
+      // always update empty view
+      mEmptyView.setText(getString(messageId));
     }
 
-    // show message
-    Toast toast =
-            Toast.makeText(MyStocksActivity.this, getString(messageId),
-                    Toast.LENGTH_LONG);
-    toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
-    toast.show();
+    // only show error messages as toast
+    if(status > Utils.QUOTES_STATUS_OK) {
+      Toast toast =
+              Toast.makeText(MyStocksActivity.this, getString(messageId),
+                      Toast.LENGTH_LONG);
+      toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
+      toast.show();
+    }
   }
 
   @Override
@@ -329,5 +333,20 @@ public class MyStocksActivity extends AppCompatActivity
     if (key.equals(getString(R.string.pref_quotes_status_key))) {
       checkErrors();
     }
+  }
+
+  private void checkNetwork() {
+
+    ConnectivityManager cm =
+            (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+    NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+    isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    // update error status
+    if(isConnected)
+      Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_OK);
+    else
+      Utils.setQuotesStatus(mContext, Utils.QUOTES_STATUS_NO_INTERNET);
   }
 }

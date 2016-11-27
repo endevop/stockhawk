@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import static com.sam_chordas.android.stockhawk.widget.StockHawkWidgetProvider.ACTION_DATA_UPDATED;
 
@@ -21,9 +22,12 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
   private int rowIdColumn;
   private DataSetObserver mDataSetObserver;
   private Context mContext;
-  public CursorRecyclerViewAdapter(Context context, Cursor cursor){
+  private View mEmptyView;
+
+  public CursorRecyclerViewAdapter(Context context, Cursor cursor, View emptyView){
     mContext = context;
     mCursor = cursor;
+    mEmptyView = emptyView;
     dataIsValid = cursor != null;
     rowIdColumn = dataIsValid ? mCursor.getColumnIndex("_id") : -1;
     mDataSetObserver = new NotifyingDataSetObserver();
@@ -92,6 +96,13 @@ public abstract class CursorRecyclerViewAdapter <VH extends RecyclerView.ViewHol
       notifyDataSetChanged();
       updateWidgets();
     }
+
+    // set empty view visibility
+    if(getItemCount() > 0)
+      mEmptyView.setVisibility(View.INVISIBLE);
+    else
+      mEmptyView.setVisibility(View.VISIBLE);
+
     return oldCursor;
   }
 
